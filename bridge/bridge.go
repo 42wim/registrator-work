@@ -144,6 +144,21 @@ func (b *Bridge) add(containerId string, quiet bool) {
 		ports[string(port)] = servicePort(container, port, published)
 	}
 
+	v6metadata := mapDefault(serviceMetaData(container.Config, ""), "ipv6ports", "")
+	for _, port := range strings.Split(v6metadata, ",") {
+		if port != "" {
+			p := strings.Split(string(port), "/")
+			ports[port] = ServicePort{HostPort: p[1],
+				HostIP:            container.NetworkSettings.GlobalIPv6Address,
+				ExposedPort:       p[1],
+				ExposedIP:         container.NetworkSettings.GlobalIPv6Address,
+				PortType:          p[0],
+				ContainerID:       container.ID,
+				ContainerHostname: container.Config.Hostname,
+				container:         container}
+		}
+	}
+
 	if len(ports) == 0 && !quiet {
 		log.Println("ignored:", container.ID[:12], "no published ports")
 		return

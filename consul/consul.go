@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/gliderlabs/registrator/bridge"
 	consulapi "github.com/hashicorp/consul/api"
+	"github.com/42wim/registrator-work/bridge"
 )
 
 const DefaultInterval = "10s"

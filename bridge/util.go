@@ -33,7 +33,7 @@ func combineTags(tagParts ...string) []string {
 func serviceMetaData(config *dockerapi.Config, port string) map[string]string {
 	meta := config.Env
 	for k, v := range config.Labels {
-		meta = append(meta, k + "=" + v)
+		meta = append(meta, k+"="+v)
 	}
 	metadata := make(map[string]string)
 	for _, kv := range meta {
