@@ -148,7 +148,7 @@ func (b *Bridge) add(containerId string, quiet bool) {
 	for _, port := range strings.Split(v6metadata, ",") {
 		if port != "" {
 			p := strings.Split(string(port), "/")
-			ports[port] = ServicePort{HostPort: p[0],
+			ports[port+":ipv6"] = ServicePort{HostPort: p[0],
 				HostIP:            container.NetworkSettings.GlobalIPv6Address,
 				ExposedPort:       p[0],
 				ExposedIP:         container.NetworkSettings.GlobalIPv6Address,
