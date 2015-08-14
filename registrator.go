@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/42wim/registrator-work/bridge"
 	dockerapi "github.com/fsouza/go-dockerclient"
 	"github.com/gliderlabs/pkg/usage"
-	"github.com/gliderlabs/registrator/bridge"
 )
 
 var Version string
