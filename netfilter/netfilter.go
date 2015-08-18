@@ -1,10 +1,10 @@
 package netfilter
 
 import (
+	"github.com/42wim/registrator-work/bridge"
 	"net/url"
 	"strconv"
 	"strings"
-	"github.com/42wim/registrator-work/bridge"
 )
 
 func init() {

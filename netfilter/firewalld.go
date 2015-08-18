@@ -1,4 +1,5 @@
 // based on github.com/docker/libnetwork/iptables/firewalld.go
+// apache 2.0 license
 package netfilter
 
 import (
