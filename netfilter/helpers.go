@@ -62,7 +62,7 @@ func ipsetHost(command string, set string, ip string, proto string, port string)
 }
 
 func iptablesInit(chain string, set string) error {
-	exists, err := checkTestError(iptablesRun("-t filter -C " + chain + " -o docker0 -m set --match-set "+ set + " dst,dst -j ACCEPT --wait"))
+	exists, err := checkTestError(iptablesRun("-t filter -C " + chain + " -o docker0 -m set --match-set " + set + " dst,dst -j ACCEPT --wait"))
 	if err != nil {
 		return err
 	}

@@ -222,8 +222,8 @@ func (b *Bridge) newService(port ServicePort, isgroup bool) *Service {
 	service := new(Service)
 	service.Origin = port
 	service.ID = hostname + ":" + container.Name[1:] + ":" + port.ExposedPort
-	if strings.Contains(port.ExposedIP,":") {
-		service.ID=service.ID+":ipv6"
+	if strings.Contains(port.ExposedIP, ":") {
+		service.ID = service.ID + ":ipv6"
 	}
 	service.Name = mapDefault(metadata, "name", defaultName)
 	var p int
