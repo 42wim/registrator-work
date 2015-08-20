@@ -14,8 +14,14 @@ func init() {
 type Factory struct{}
 
 func (f *Factory) New(uri *url.URL) bridge.RegistryAdapter {
-	chain := uri.Host
-	set := strings.Replace(uri.Path, "/", "", -1)
+	var chain, set string
+	if uri.Host != "" {
+		chain = uri.Host
+		set = strings.Replace(uri.Path, "/", "", -1)
+	} else {
+		chain = "FORWARD_direct"
+		set = "containerports"
+	}
 	FirewalldInit()
 	if firewalldRunning {
 		OnReloaded(func() { iptablesInit(chain, set) })
