@@ -188,15 +188,16 @@ func (b *Bridge) add(containerId string, quiet bool) {
 		ports[string(port)] = servicePort(container, port, published)
 	}
 
-	v6metadata := mapDefault(serviceMetaData(container.Config, ""), "ipv6ports", "")
-	for _, port := range strings.Split(v6metadata, ",") {
-		if port != "" {
-			p := strings.Split(string(port), "/")
-			ports[port+":ipv6"] = ServicePort{HostPort: p[0],
+	metadata := serviceMetaData(container.Config, "")
+	for k, v := range metadata {
+		if strings.Contains(k, ":ipv6") {
+			port := strings.Split(k, ":")[0]
+			porttype := v
+			ports[k] = ServicePort{HostPort: port,
 				HostIP:            container.NetworkSettings.GlobalIPv6Address,
-				ExposedPort:       p[0],
+				ExposedPort:       port,
 				ExposedIP:         container.NetworkSettings.GlobalIPv6Address,
-				PortType:          p[1],
+				PortType:          porttype,
 				ContainerID:       container.ID,
 				ContainerHostname: container.Config.Hostname,
 				container:         container}
@@ -262,9 +263,6 @@ func (b *Bridge) newService(port ServicePort, isgroup bool) *Service {
 	service := new(Service)
 	service.Origin = port
 	service.ID = hostname + ":" + container.Name[1:] + ":" + port.ExposedPort
-	if strings.Contains(port.ExposedIP, ":") {
-		service.ID = service.ID + ":ipv6"
-	}
 	service.Name = mapDefault(metadata, "name", defaultName)
 	if isgroup && !metadataFromPort["name"] {
 		service.Name += "-" + port.ExposedPort
@@ -286,6 +284,11 @@ func (b *Bridge) newService(port ServicePort, isgroup bool) *Service {
 	} else {
 		service.Tags = combineTags(
 			mapDefault(metadata, "tags", ""), b.config.ForceTags)
+	}
+
+	if strings.Contains(port.ExposedIP, ":") {
+		service.ID = service.ID + ":ipv6"
+		delete(metadata, string(port.ExposedPort)+":ipv6")
 	}
 
 	id := mapDefault(metadata, "id", "")
