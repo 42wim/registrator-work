@@ -43,10 +43,19 @@ func serviceMetaData(config *dockerapi.Config, port string) map[string]string {
 			portkey := strings.SplitN(key, "_", 2)
 			_, err := strconv.Atoi(portkey[0])
 			if err == nil && len(portkey) > 1 {
-				if portkey[0] != port {
+				if portkey[0] != port && portkey[1] != "ipv6" {
 					continue
 				}
-				metadata[portkey[1]] = kvp[1]
+				if portkey[1] == "ipv6" {
+					if kvp[1] == "" { // no protocol specified, listen on udp/tcp
+						metadata[portkey[0]+":udp:ipv6"] = "udp"
+						metadata[portkey[0]+":tcp:ipv6"] = "tcp"
+					} else {
+						metadata[portkey[0]+":"+kvp[1]+":ipv6"] = kvp[1]
+					}
+				} else {
+					metadata[portkey[1]] = kvp[1]
+				}
 			} else {
 				metadata[key] = kvp[1]
 			}
@@ -56,7 +65,7 @@ func serviceMetaData(config *dockerapi.Config, port string) map[string]string {
 }
 
 func servicePort(container *dockerapi.Container, port dockerapi.Port, published []dockerapi.PortBinding) ServicePort {
-	var hp, hip string
+	var hp, hip, ep, ept string
 	if len(published) > 0 {
 		hp = published[0].HostPort
 		hip = published[0].HostIP
@@ -64,13 +73,19 @@ func servicePort(container *dockerapi.Container, port dockerapi.Port, published 
 	if hip == "" {
 		hip = "0.0.0.0"
 	}
-	p := strings.Split(string(port), "/")
+	exposedPort := strings.Split(string(port), "/")
+	ep = exposedPort[0]
+	if len(exposedPort) == 2 {
+		ept = exposedPort[1]
+	} else {
+		ept = "tcp" // default
+	}
 	return ServicePort{
 		HostPort:          hp,
 		HostIP:            hip,
-		ExposedPort:       p[0],
+		ExposedPort:       ep,
 		ExposedIP:         container.NetworkSettings.IPAddress,
-		PortType:          p[1],
+		PortType:          ept,
 		ContainerID:       container.ID,
 		ContainerHostname: container.Config.Hostname,
 		container:         container,
