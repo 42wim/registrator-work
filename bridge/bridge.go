@@ -267,6 +267,12 @@ func (b *Bridge) newService(port ServicePort, isgroup bool) *Service {
 	if isgroup && !metadataFromPort["name"] {
 		service.Name += "-" + port.ExposedPort
 	}
+
+	// NAME_IPV4 overrides
+	if mapDefault(metadata, "name_ipv4", defaultName) != defaultName {
+		service.Name = mapDefault(metadata, "name_ipv4", defaultName)
+	}
+
 	var p int
 	if b.config.Internal == true {
 		service.IP = port.ExposedIP
@@ -288,6 +294,10 @@ func (b *Bridge) newService(port ServicePort, isgroup bool) *Service {
 
 	if strings.Contains(port.ExposedIP, ":") {
 		service.ID = service.ID + ":ipv6"
+		// NAME_IPV6 overrides
+		if mapDefault(metadata, "name_ipv6", defaultName) != defaultName {
+			service.Name = mapDefault(metadata, "name_ipv6", defaultName)
+		}
 		delete(metadata, string(port.ExposedPort)+":ipv6")
 	}
 
@@ -299,6 +309,8 @@ func (b *Bridge) newService(port ServicePort, isgroup bool) *Service {
 	delete(metadata, "id")
 	delete(metadata, "tags")
 	delete(metadata, "name")
+	delete(metadata, "name_ipv6")
+	delete(metadata, "name_ipv4")
 	service.Attrs = metadata
 	service.TTL = b.config.RefreshTtl
 
