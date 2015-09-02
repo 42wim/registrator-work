@@ -234,6 +234,10 @@ func (b *Bridge) add(containerId string, quiet bool) {
 }
 
 func (b *Bridge) newService(port ServicePort, isgroup bool) *Service {
+	ipv6 := false
+	if strings.Contains(port.ExposedIP, ":") {
+		ipv6 = true
+	}
 	container := port.container
 	defaultName := strings.Split(path.Base(container.Config.Image), ":")[0]
 
@@ -268,10 +272,10 @@ func (b *Bridge) newService(port ServicePort, isgroup bool) *Service {
 		service.Name += "-" + port.ExposedPort
 	}
 
-	// NAME_IPV4 overrides
-	if mapDefault(metadata, "name_ipv4", defaultName) != defaultName {
-		service.Name = mapDefault(metadata, "name_ipv4", defaultName)
+	if ipv6 {
+		service.ID = service.ID + ":ipv6"
 	}
+	service.Name = mapDefault(metadata, "name", defaultName)
 
 	var p int
 	if b.config.Internal == true {
@@ -292,18 +296,26 @@ func (b *Bridge) newService(port ServicePort, isgroup bool) *Service {
 			mapDefault(metadata, "tags", ""), b.config.ForceTags)
 	}
 
-	if strings.Contains(port.ExposedIP, ":") {
-		service.ID = service.ID + ":ipv6"
+	if ipv6 {
 		// NAME_IPV6 overrides
 		if mapDefault(metadata, "name_ipv6", defaultName) != defaultName {
 			service.Name = mapDefault(metadata, "name_ipv6", defaultName)
 		}
 		delete(metadata, string(port.ExposedPort)+":ipv6")
+	} else {
+		// NAME_IPV4 overrides
+		if mapDefault(metadata, "name_ipv4", defaultName) != defaultName {
+			service.Name = mapDefault(metadata, "name_ipv4", defaultName)
+		}
 	}
 
 	id := mapDefault(metadata, "id", "")
 	if id != "" {
-		service.ID = id
+		if ipv6 {
+			service.ID = id + ":ipv6"
+		} else {
+			service.ID = id
+		}
 	}
 
 	delete(metadata, "id")
