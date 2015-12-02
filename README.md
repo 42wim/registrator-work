@@ -13,6 +13,8 @@ supports pluggable service registries, which currently includes
 [Consul](http://www.consul.io/), [etcd](https://github.com/coreos/etcd) and
 [SkyDNS 2](https://github.com/skynetservices/skydns/).
 
+Full documentation available at http://gliderlabs.com/registrator
+
 ## Getting Registrator
 
 Get the latest release, master, or any version of Registrator via [Docker Hub](https://registry.hub.docker.com/u/gliderlabs/registrator/):
@@ -45,12 +47,11 @@ discussing in [Slack](http://glider-slackin.herokuapp.com/).
 
 Also check out our Developer Guide on [Contributing
 Backends](https://gliderlabs.com/registrator/latest/dev/backends) and [Staging
-Releases](https://gliderlabs.com/registrator/latest/dev/releases.).
+Releases](https://gliderlabs.com/registrator/latest/dev/releases).
 
 ## Sponsors and Thanks
 
-Ongoing support of this project is made possible by [Weave](http://weave.works),
-the Docker SDN. Big thanks to Michael Crosby for
+Ongoing support of this project is made possible by [Weave](http://weave.works), the easiest way to connect, observe and control your containers. Big thanks to Michael Crosby for
 [skydock](https://github.com/crosbymichael/skydock) and the Consul mailing list
 for inspiration.
 

@@ -5,11 +5,15 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 ### Added
+- bridge.Ping - calls adapter.Ping
 
 ### Removed
 
 ### Changed
-
+- Upgraded base image to alpine:3.2 and go 1.4
+- bridge.New returns an error instead of calling log.Fatal
+- bridge.New will not attempt to ping an adapter.
+- Specifying a SERVICE_NAME for containers exposing multiple ports will now result in a named service per port. #194
 
 ## [v6] - 2015-08-07
 ### Fixed
