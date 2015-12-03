@@ -81,7 +81,8 @@ func (r *NetfilterAdapter) Register(service *bridge.Service) error {
 				res := strings.Split(src, "#")
 				srcip := res[0]
 				ts, _ := strconv.Atoi(res[1])
-				if int(time.Now().Unix())-ts < service.TTL {
+				// exclude ourself and stale info
+				if int(time.Now().Unix())-ts < service.TTL && service.IP != srcip {
 					ipsetSrcDst("add", r.Set, srcip, service.IP, service.Origin.PortType, strconv.Itoa(service.Port), strconv.Itoa(service.TTL))
 				} else {
 					log.Println("stale service found, not adding", srcip, service.TTL, ts, time.Now().Unix())
