@@ -22,12 +22,15 @@ func (f *Factory) New(uri *url.URL) bridge.RegistryAdapter {
 		chain = "FORWARD_direct"
 		set = "containerports"
 	}
-	FirewalldInit()
-	if firewalldRunning {
-		OnReloaded(func() { iptablesInit(chain, set) })
-	}
 	ipsetInit(set)
-	iptablesInit(chain, set)
+
+	if chain != "-" {
+		FirewalldInit()
+		if firewalldRunning {
+			OnReloaded(func() { iptablesInit(chain, set) })
+		}
+		iptablesInit(chain, set)
+	}
 	return &NetfilterAdapter{Chain: chain, Set: set}
 }
 
@@ -40,20 +43,50 @@ func (r *NetfilterAdapter) Ping() error {
 	return nil
 }
 
+func (r *NetfilterAdapter) SetsForHost(service *bridge.Service) []string {
+	name := service.Name
+	port := strconv.Itoa(service.Port)
+	tags := service.Tags
+
+	sets := []string{
+		// default set
+		r.Set,
+		// service_name
+		name,
+		// service_name/service_port
+		name + "/" + port,
+	}
+
+	for _, t := range tags {
+		// service_name/service_tag, service_name/service_tag/service_port
+		sets = append(sets, name+"/"+t, name+"/"+t+"/"+port)
+	}
+
+	return sets
+}
+
 func (r *NetfilterAdapter) Register(service *bridge.Service) error {
 	if strings.Contains(service.IP, ":") {
-		return ipsetHost("add", r.Set, service.IP, service.Origin.PortType, strconv.Itoa(service.Port))
-	} else {
-		return nil
+		for _, set := range r.SetsForHost(service) {
+			err := ipsetHost("add", set, service.IP, service.Origin.PortType, strconv.Itoa(service.Port))
+			if err != nil {
+				return err
+			}
+		}
 	}
+	return nil
 }
 
 func (r *NetfilterAdapter) Deregister(service *bridge.Service) error {
 	if strings.Contains(service.IP, ":") {
-		return ipsetHost("del", r.Set, service.IP, service.Origin.PortType, strconv.Itoa(service.Port))
-	} else {
-		return nil
+		for _, set := range r.SetsForHost(service) {
+			err := ipsetHost("del", set, service.IP, service.Origin.PortType, strconv.Itoa(service.Port))
+			if err != nil {
+				return err
+			}
+		}
 	}
+	return nil
 }
 
 func (r *NetfilterAdapter) Refresh(service *bridge.Service) error {
