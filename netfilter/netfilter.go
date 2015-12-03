@@ -45,8 +45,8 @@ func (r *NetfilterAdapter) Ping() error {
 
 func (r *NetfilterAdapter) SetsForHost(service *bridge.Service) []string {
 	name := service.Name
-	port := strconv.Itoa(service.Port)
 	tags := service.Tags
+	port := strconv.Itoa(service.Port)
 
 	sets := []string{
 		// default set
@@ -58,8 +58,10 @@ func (r *NetfilterAdapter) SetsForHost(service *bridge.Service) []string {
 	}
 
 	for _, t := range tags {
-		// service_name/service_tag, service_name/service_tag/service_port
-		sets = append(sets, name+"/"+t, name+"/"+t+"/"+port)
+		// service_name/service_tag
+		sets = append(sets, name+"/"+t)
+		// service_name/service_tag/service_port
+		sets = append(sets, name+"/"+t+"/"+port)
 	}
 
 	return sets
@@ -68,7 +70,7 @@ func (r *NetfilterAdapter) SetsForHost(service *bridge.Service) []string {
 func (r *NetfilterAdapter) Register(service *bridge.Service) error {
 	if strings.Contains(service.IP, ":") {
 		for _, set := range r.SetsForHost(service) {
-			err := ipsetHost("add", set, service.IP, service.Origin.PortType, strconv.Itoa(service.Port))
+			err := ipsetHost("add", set, service.IP, service.Origin.PortType, strconv.Itoa(service.Port), strconv.Itoa(service.TTL))
 			if err != nil {
 				return err
 			}
@@ -80,7 +82,7 @@ func (r *NetfilterAdapter) Register(service *bridge.Service) error {
 func (r *NetfilterAdapter) Deregister(service *bridge.Service) error {
 	if strings.Contains(service.IP, ":") {
 		for _, set := range r.SetsForHost(service) {
-			err := ipsetHost("del", set, service.IP, service.Origin.PortType, strconv.Itoa(service.Port))
+			err := ipsetHost("del", set, service.IP, service.Origin.PortType, strconv.Itoa(service.Port), "")
 			if err != nil {
 				return err
 			}
@@ -90,5 +92,5 @@ func (r *NetfilterAdapter) Deregister(service *bridge.Service) error {
 }
 
 func (r *NetfilterAdapter) Refresh(service *bridge.Service) error {
-	return nil
+	return r.Register(service)
 }
