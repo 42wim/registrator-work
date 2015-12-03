@@ -125,13 +125,13 @@ func (r *NetfilterAdapter) Refresh(service *bridge.Service) error {
 }
 
 func (r *NetfilterAdapter) kvRegister(service *bridge.Service) error {
-	path := r.path[1:] + "/" + service.Name + "/" + service.ID
+	path := r.path + "/" + service.Name + "/" + service.ID
 	_, err := r.client.KV().Put(&consulapi.KVPair{Key: path, Value: []byte(service.IP + "#" + strconv.Itoa(int(time.Now().Unix())))}, nil)
 	if err != nil {
 		log.Println("consulkv: failed to register service:", err)
 	}
 	for _, tag := range service.Tags {
-		path = r.path[1:] + "/" + service.Name + "/" + tag + "/" + service.ID
+		path = r.path + "/" + service.Name + "/" + tag + "/" + service.ID
 		_, err := r.client.KV().Put(&consulapi.KVPair{Key: path, Value: []byte(service.IP + "#" + strconv.Itoa(int(time.Now().Unix())))}, nil)
 		if err != nil {
 			log.Println("consulkv: failed to register service:", err)
@@ -144,13 +144,13 @@ func (r *NetfilterAdapter) kvDeregister(service *bridge.Service) error {
 	if !strings.Contains(service.IP, ":") {
 		return nil
 	}
-	path := r.path[1:] + "/" + service.Name + "/" + service.ID
+	path := r.path + "/" + service.Name + "/" + service.ID
 	_, err := r.client.KV().Delete(path, nil)
 	if err != nil {
 		log.Println("consulkv: failed to deregister service:", err)
 	}
 	for _, tag := range service.Tags {
-		path = r.path[1:] + "/" + service.Name + "/" + tag + "/" + service.ID
+		path = r.path + "/" + service.Name + "/" + tag + "/" + service.ID
 		_, err := r.client.KV().Delete(path, nil)
 		if err != nil {
 			log.Println("consulkv: failed to deregister service:", err)
