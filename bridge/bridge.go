@@ -229,9 +229,11 @@ func (b *Bridge) newService(port ServicePort, isgroup bool) *Service {
 		service.ID = service.ID + ":ipv6"
 	}
 	service.Name = mapDefault(metadata, "name", defaultName)
-	if isgroup {
-		service.Name += "-" + port.ExposedPort
-	}
+	/*
+		if isgroup {
+			service.Name += "-" + port.ExposedPort
+		}
+	*/
 	var p int
 	if b.config.Internal == true {
 		service.IP = port.ExposedIP
