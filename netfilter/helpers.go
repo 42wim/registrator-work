@@ -45,14 +45,27 @@ func ipsetRun(ipcmd string) error {
 	return nil
 }
 
-func ipsetHost(command string, set string, ip string, proto string, port string) error {
+func ipsetHost(command string, set string, ip string, proto string, port string, timeout string) error {
+	err := ipsetInitWithHash(set, "ip,port")
+	if err != nil {
+		return err
+	}
+
 	cmd := "-! " + command + " " + set + " " + ip + "," + proto + ":" + port
+	if timeout != "" {
+		cmd = cmd + " timeout " + timeout
+	}
+
 	log.Println("ipsetHost()", cmd)
-	err := ipsetRun(cmd)
+	err = ipsetRun(cmd)
 	if err != nil {
 		return err
 	}
 	cmd = "-! " + command + " " + set + " " + ip + "," + "icmpv6:128/0"
+	if timeout != "" {
+		cmd = cmd + " timeout " + timeout
+	}
+
 	log.Println("ipsetHost()", cmd)
 	err = ipsetRun(cmd)
 	if err != nil {
@@ -81,7 +94,22 @@ func iptablesInit(chain string, set string) error {
 }
 
 func ipsetInit(set string) error {
-	err := ipsetRun("-! create " + set + " hash:ip,port family inet6")
+	err := ipsetInitAndFlushWithHash(set, "ip,port")
+	return err
+}
+
+func ipsetInitWithHash(set string, hash string) error {
+	err := ipsetRun("-! create " + set + " hash:" + hash + " family inet6 counters timeout 0")
+	if err != nil {
+		log.Println("ipsetHost() could not create ipset: ", set)
+		log.Println("Error: ", err)
+		return err
+	}
+	return nil
+}
+
+func ipsetInitAndFlushWithHash(set string, hash string) error {
+	err := ipsetInitWithHash(set, hash)
 	if err != nil {
 		return err
 	}
