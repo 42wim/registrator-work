@@ -46,7 +46,7 @@ func ipsetRun(ipcmd string) error {
 }
 
 func ipsetSrcDst(command string, set string, srcip string, dstip string, proto string, port string, timeout string) error {
-	cmd := "-! " + command + " " + set + " " + srcip + "," + proto + ":" + port + "," + dstip
+	cmd := "-! " + command + " " + set + " " + dstip + "," + proto + ":" + port + "," + srcip
 	if timeout != "" {
 		cmd = cmd + " timeout " + timeout
 	}
@@ -60,12 +60,12 @@ func ipsetSrcDst(command string, set string, srcip string, dstip string, proto s
 }
 
 func iptablesInit(chain string, set string) error {
-	exists, err := checkTestError(iptablesRun("-t filter -C " + chain + " -o docker0 -m set --match-set " + set + " dst,dst -j ACCEPT --wait"))
+	exists, err := checkTestError(iptablesRun("-t filter -C " + chain + " -o docker0 -m set --match-set " + set + " dst,dst,src -j ACCEPT --wait"))
 	if err != nil {
 		return err
 	}
 	if !exists {
-		iptablesRun("-A " + chain + " -o docker0 -m set --match-set " + set + " dst,dst -j ACCEPT --wait")
+		iptablesRun("-A " + chain + " -o docker0 -m set --match-set " + set + " dst,dst,src -j ACCEPT --wait")
 	}
 	exists, err = checkTestError(iptablesRun("-t filter -C " + chain + " -o docker0 -j DROP --wait"))
 	if err != nil {
