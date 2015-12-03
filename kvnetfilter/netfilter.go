@@ -79,6 +79,10 @@ func (r *NetfilterAdapter) Register(service *bridge.Service) error {
 			log.Println("would allow ", srcRanges)
 			for _, src := range srcRanges {
 				res := strings.Split(src, "#")
+				if len(res) != 2 {
+					log.Println("ERROR incorrect value: ", src)
+					continue
+				}
 				srcip := res[0]
 				ts, _ := strconv.Atoi(res[1])
 				// exclude ourself and stale info
@@ -107,6 +111,10 @@ func (r *NetfilterAdapter) Deregister(service *bridge.Service) error {
 			log.Println("would allow ", srcRanges)
 			for _, src := range srcRanges {
 				res := strings.Split(src, "#")
+				if len(res) != 2 {
+					log.Println("ERROR incorrect value: ", src)
+					continue
+				}
 				srcip := res[0]
 				ipsetSrcDst("del", r.Set, srcip, service.IP, service.Origin.PortType, strconv.Itoa(service.Port), "")
 			}
@@ -167,6 +175,11 @@ func (r *NetfilterAdapter) kvFindACL(key string) []string {
 	for _, kp := range kps {
 		if len(kp.Value) > 0 {
 			log.Println("keys to search ", string(kp.Value))
+			// if ipv6 address, add
+			if strings.Contains(string(kp.Value), ":") {
+				acls = append(acls, string(kp.Value))
+				continue
+			}
 			rkps, _, _ := r.client.KV().List(string(kp.Value), nil)
 			for _, rkp := range rkps {
 				log.Print("found acl: ", string(rkp.Value))
