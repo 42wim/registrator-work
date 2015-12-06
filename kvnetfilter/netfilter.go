@@ -189,3 +189,7 @@ func (r *NetfilterAdapter) kvFindACL(key string) []string {
 	}
 	return acls
 }
+
+func (r *NetfilterAdapter) Services() ([]*bridge.Service, error) {
+	return []*bridge.Service{}, nil
+}
