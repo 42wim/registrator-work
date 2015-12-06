@@ -94,3 +94,7 @@ func (r *NetfilterAdapter) Deregister(service *bridge.Service) error {
 func (r *NetfilterAdapter) Refresh(service *bridge.Service) error {
 	return r.Register(service)
 }
+
+func (r *NetfilterAdapter) Services() ([]*bridge.Service, error) {
+	return []*bridge.Service{}, nil
+}
