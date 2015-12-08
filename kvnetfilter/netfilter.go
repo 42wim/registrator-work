@@ -73,7 +73,7 @@ func (r *NetfilterAdapter) Register(service *bridge.Service) error {
 			srcRanges = append(srcRanges, r.kvFindACL(service.Name+"/"+tag+"/")...)
 		}
 		// service too
-		srcRanges = append(srcRanges, r.kvFindACL(service.Name+"/")...)
+		srcRanges = append(srcRanges, r.kvFindACL(service.Name+"/_all/")...)
 
 		if len(srcRanges) > 0 {
 			log.Println("would allow ", srcRanges)
