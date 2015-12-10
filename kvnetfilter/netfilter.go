@@ -143,14 +143,21 @@ func (r *NetfilterAdapter) Refresh(service *bridge.Service) error {
 }
 
 func (r *NetfilterAdapter) kvRegister(service *bridge.Service) error {
-	path := r.path + "/" + service.Name + "/" + service.ID
-	_, err := r.client.KV().Put(&consulapi.KVPair{Key: path, Value: []byte(service.IP + "#" + strconv.Itoa(int(time.Now().Unix())))}, nil)
-	if err != nil {
-		log.Println("consulkv: failed to register service:", err)
+	var path string
+	var err error
+	// only register in /service.Name when tags are empty
+	if len(service.Tags) == 0 {
+		path = r.path + "/" + service.Name + "/" + service.ID
+		_, err = r.client.KV().Put(&consulapi.KVPair{Key: path, Value: []byte(service.IP + "#" + strconv.Itoa(int(time.Now().Unix())))}, nil)
+		if err != nil {
+			log.Println("consulkv: failed to register service:", err)
+		}
+		return err
 	}
+
 	for _, tag := range service.Tags {
 		path = r.path + "/" + service.Name + "/" + tag + "/" + service.ID
-		_, err := r.client.KV().Put(&consulapi.KVPair{Key: path, Value: []byte(service.IP + "#" + strconv.Itoa(int(time.Now().Unix())))}, nil)
+		_, err = r.client.KV().Put(&consulapi.KVPair{Key: path, Value: []byte(service.IP + "#" + strconv.Itoa(int(time.Now().Unix())))}, nil)
 		if err != nil {
 			log.Println("consulkv: failed to register service:", err)
 		}
@@ -159,17 +166,20 @@ func (r *NetfilterAdapter) kvRegister(service *bridge.Service) error {
 }
 
 func (r *NetfilterAdapter) kvDeregister(service *bridge.Service) error {
-	if !strings.Contains(service.IP, ":") {
-		return nil
+	var path string
+	var err error
+	if len(service.Tags) == 0 {
+		path = r.path + "/" + service.Name + "/" + service.ID
+		_, err = r.client.KV().Delete(path, nil)
+		if err != nil {
+			log.Println("consulkv: failed to deregister service:", err)
+		}
+		return err
 	}
-	path := r.path + "/" + service.Name + "/" + service.ID
-	_, err := r.client.KV().Delete(path, nil)
-	if err != nil {
-		log.Println("consulkv: failed to deregister service:", err)
-	}
+
 	for _, tag := range service.Tags {
 		path = r.path + "/" + service.Name + "/" + tag + "/" + service.ID
-		_, err := r.client.KV().Delete(path, nil)
+		_, err = r.client.KV().Delete(path, nil)
 		if err != nil {
 			log.Println("consulkv: failed to deregister service:", err)
 		}
