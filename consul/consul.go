@@ -67,10 +67,9 @@ func (r *ConsulAdapter) Register(service *bridge.Service) error {
 func (r *ConsulAdapter) buildCheck(service *bridge.Service) *consulapi.AgentServiceCheck {
 	check := new(consulapi.AgentServiceCheck)
 	if path := service.Attrs["check_http"]; path != "" {
-		if net.ParseIP(service.IP).To4() == nil && service.IP[0] != '[' { // verify if its an ipv6 address
-			service.IP = fmt.Sprintf("[%s]", service.IP)
+		if net.ParseIP(service.IP).To4() == nil { // verify if its an ipv6 address
+			check.HTTP = fmt.Sprintf("http://%s:%d%s", fmt.Sprintf("[%s]", service.IP), service.Port, path)
 		}
-		check.HTTP = fmt.Sprintf("http://%s:%d%s", service.IP, service.Port, path)
 		if timeout := service.Attrs["check_timeout"]; timeout != "" {
 			check.Timeout = timeout
 		}
