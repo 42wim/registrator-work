@@ -188,7 +188,7 @@ func (b *Bridge) add(containerId string, quiet bool) {
 		ports[string(port)] = servicePort(container, port, published)
 	}
 
-	metadata := serviceMetaData(container.Config, "")
+	metadata, _ := serviceMetaData(container.Config, "")
 	for k, v := range metadata {
 		if strings.Contains(k, ":ipv6") {
 			port := strings.Split(k, ":")[0]
