@@ -5,6 +5,7 @@ import (
 	consulapi "github.com/hashicorp/consul/api"
 	"log"
 	"net/url"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -63,6 +64,9 @@ func (r *NetfilterAdapter) Ping() error {
 
 func (r *NetfilterAdapter) Register(service *bridge.Service) error {
 	if strings.Contains(service.IP, ":") {
+		for k, _ := range service.Tags {
+			service.Tags[k] = path.Clean(service.Tags[k])
+		}
 		err := r.kvRegister(service)
 		if err != nil {
 			return err
