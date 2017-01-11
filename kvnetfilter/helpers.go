@@ -51,7 +51,6 @@ func ipsetSrcDst(command string, set string, srcip string, dstip string, proto s
 		cmd = cmd + " timeout " + timeout
 	}
 
-	log.Println("ipsetHost()", cmd)
 	err := ipsetRun(cmd)
 	if err != nil {
 		return err

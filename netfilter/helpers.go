@@ -56,7 +56,6 @@ func ipsetHost(command string, set string, ip string, proto string, port string,
 		cmd = cmd + " timeout " + timeout
 	}
 
-	log.Println("ipsetHost()", cmd)
 	err = ipsetRun(cmd)
 	if err != nil {
 		return err
@@ -66,7 +65,6 @@ func ipsetHost(command string, set string, ip string, proto string, port string,
 		cmd = cmd + " timeout " + timeout
 	}
 
-	log.Println("ipsetHost()", cmd)
 	err = ipsetRun(cmd)
 	if err != nil {
 		return err
