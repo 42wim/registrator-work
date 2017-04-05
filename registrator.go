@@ -46,7 +46,6 @@ func main() {
 		os.Exit(0)
 	}
 	log.Printf("Starting registrator %s ...", Version)
-	log.Println("Hallo, Jo en Wim")
 
 	flag.Parse()
 
