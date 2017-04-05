@@ -1,8 +1,8 @@
 package kvnetfilter
 
 import (
-	"github.com/42wim/registrator-work/bridge"
 	consulapi "github.com/hashicorp/consul/api"
+	"github.com/jovandeginste/registrator-work/bridge"
 	"log"
 	"net/url"
 	"path"
