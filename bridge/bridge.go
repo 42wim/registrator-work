@@ -75,6 +75,8 @@ func (b *Bridge) Refresh() {
 		}
 	}
 
+	nr_containers := 0
+	nr_services := 0
 	for containerId, services := range b.services {
 		for _, service := range services {
 			err := b.registry.Refresh(service)
@@ -82,9 +84,11 @@ func (b *Bridge) Refresh() {
 				log.Println("refresh failed:", service.ID, err)
 				continue
 			}
-			log.Println("refreshed:", containerId[:12], service.ID)
+			nr_services = nr_services + 1
 		}
+		nr_containers = nr_containers + 1
 	}
+	log.Printf("Refreshed: %d containers, %d services", nr_containers, nr_services)
 }
 
 func (b *Bridge) Sync(quiet bool) {
