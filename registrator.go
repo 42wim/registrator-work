@@ -27,7 +27,6 @@ var retryAttempts = flag.Int("retry-attempts", 0, "Max retry attempts to establi
 var retryInterval = flag.Int("retry-interval", 2000, "Interval (in millisecond) between retry-attempts.")
 var cleanup = flag.Bool("cleanup", false, "Remove dangling services")
 
-
 func getopt(name, def string) string {
 	if env := os.Getenv(name); env != "" {
 		return env
@@ -47,6 +46,7 @@ func main() {
 		os.Exit(0)
 	}
 	log.Printf("Starting registrator %s ...", Version)
+	log.Println("Hallo, Jo en Wim")
 
 	flag.Parse()
 
