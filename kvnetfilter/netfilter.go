@@ -96,8 +96,6 @@ func (r *NetfilterAdapter) Register(service *bridge.Service) error {
 				// exclude ourself and stale info
 				if int(time.Now().Unix())-ts < service.TTL && service.IP != srcip {
 					ipsetSrcDst("add", r.Set, srcip, service.IP, service.Origin.PortType, strconv.Itoa(service.Port), strconv.Itoa(service.TTL))
-				} else {
-					log.Println("stale service found, not adding", srcip, service.TTL, ts, time.Now().Unix())
 				}
 			}
 		}
@@ -202,7 +200,6 @@ func (r *NetfilterAdapter) kvFindACL(key string) []string {
 			}
 			rkps, _, _ := r.client.KV().List(string(kp.Value), nil)
 			for _, rkp := range rkps {
-				log.Print("found acl: ", string(rkp.Value))
 				acls = append(acls, string(rkp.Value))
 			}
 		}
