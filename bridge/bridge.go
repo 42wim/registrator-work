@@ -88,7 +88,7 @@ func (b *Bridge) Refresh() {
 		}
 		nr_containers = nr_containers + 1
 	}
-	log.Printf("Refreshed: %d containers, %d services", nr_containers, nr_services)
+	log.Printf("refreshed: %d containers, %d services", nr_containers, nr_services)
 }
 
 func (b *Bridge) Sync(quiet bool) {
