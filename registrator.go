@@ -9,7 +9,7 @@ import (
 
 	dockerapi "github.com/fsouza/go-dockerclient"
 	"github.com/gliderlabs/pkg/usage"
-	"github.com/jovandeginste/registrator-work/bridge"
+	"github.com/42wim/registrator-work/bridge"
 )
 
 var Version string
