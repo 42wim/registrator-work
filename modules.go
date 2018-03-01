@@ -1,10 +1,10 @@
 package main
 
 import (
-	_ "github.com/42wim/registrator-work/consul"
-	_ "github.com/42wim/registrator-work/consulkv"
-	_ "github.com/42wim/registrator-work/etcd"
-	_ "github.com/42wim/registrator-work/kvnetfilter"
-	_ "github.com/42wim/registrator-work/netfilter"
-	_ "github.com/42wim/registrator-work/skydns2"
+	_ "github.com/jovandeginste/registrator-work/consul"
+	_ "github.com/jovandeginste/registrator-work/consulkv"
+	_ "github.com/jovandeginste/registrator-work/etcd"
+	_ "github.com/jovandeginste/registrator-work/skydns2"
+	_ "github.com/jovandeginste/registrator-work/kvnetfilter"
+	_ "github.com/jovandeginste/registrator-work/netfilter"
 )

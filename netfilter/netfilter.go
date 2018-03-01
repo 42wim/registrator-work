@@ -1,7 +1,7 @@
 package netfilter
 
 import (
-	"github.com/42wim/registrator-work/bridge"
+	"github.com/jovandeginste/registrator-work/bridge"
 	"net/url"
 	"strconv"
 	"strings"

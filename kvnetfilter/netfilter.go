@@ -1,8 +1,8 @@
 package kvnetfilter
 
 import (
-	"github.com/42wim/registrator-work/bridge"
 	consulapi "github.com/hashicorp/consul/api"
+	"github.com/jovandeginste/registrator-work/bridge"
 	"log"
 	"net/url"
 	"path"
@@ -85,7 +85,6 @@ func (r *NetfilterAdapter) Register(service *bridge.Service) error {
 		}
 
 		if len(srcRanges) > 0 {
-			log.Println("would allow ", srcRanges)
 			for _, src := range srcRanges {
 				res := strings.Split(src, "#")
 				if len(res) != 2 {
@@ -97,8 +96,6 @@ func (r *NetfilterAdapter) Register(service *bridge.Service) error {
 				// exclude ourself and stale info
 				if int(time.Now().Unix())-ts < service.TTL && service.IP != srcip {
 					ipsetSrcDst("add", r.Set, srcip, service.IP, service.Origin.PortType, strconv.Itoa(service.Port), strconv.Itoa(service.TTL))
-				} else {
-					log.Println("stale service found, not adding", srcip, service.TTL, ts, time.Now().Unix())
 				}
 			}
 		}
@@ -122,7 +119,6 @@ func (r *NetfilterAdapter) Deregister(service *bridge.Service) error {
 		}
 
 		if len(srcRanges) > 0 {
-			log.Println("would allow ", srcRanges)
 			for _, src := range srcRanges {
 				res := strings.Split(src, "#")
 				if len(res) != 2 {
@@ -194,11 +190,9 @@ func (r *NetfilterAdapter) kvDeregister(service *bridge.Service) error {
 func (r *NetfilterAdapter) kvFindACL(key string) []string {
 	var acls []string
 	url := "/" + r.aclpath + "/" + key
-	log.Println("looking for ACL in ", url)
 	kps, _, _ := r.client.KV().List(url, nil)
 	for _, kp := range kps {
 		if len(kp.Value) > 0 {
-			log.Println("keys to search ", string(kp.Value))
 			// if ipv6 address, add
 			if strings.Contains(string(kp.Value), ":") {
 				acls = append(acls, string(kp.Value))
@@ -206,7 +200,6 @@ func (r *NetfilterAdapter) kvFindACL(key string) []string {
 			}
 			rkps, _, _ := r.client.KV().List(string(kp.Value), nil)
 			for _, rkp := range rkps {
-				log.Print("found acl: ", string(rkp.Value))
 				acls = append(acls, string(rkp.Value))
 			}
 		}
