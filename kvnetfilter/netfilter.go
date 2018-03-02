@@ -82,16 +82,13 @@ func (r *NetfilterAdapter) Register(service *bridge.Service) error {
 		// look into FIREWALL metadata
 		for key, v := range service.Attrs {
 			if strings.HasPrefix(key, "FIREWALL") {
-				// see if we match the actual service tags
-				for _, tag := range service.Tags {
-					// if we match the fwtag
-					if "firewall_"+tag == strings.ToLower(key) {
-						// split our comma separated value
-						entries := strings.Split(v, ",")
-						for _, entry := range entries {
-							// parse the entry (is it a service or a group)
-							srcRanges = append(srcRanges, r.parseFWConfig(entry)...)
-						}
+				// if we match the fwtag
+				if "firewall_"+strconv.Itoa(service.Port) == strings.ToLower(key) {
+					// split our comma separated value
+					entries := strings.Split(v, ",")
+					for _, entry := range entries {
+						// parse the entry (is it a service or a group)
+						srcRanges = append(srcRanges, r.parseFWConfig(entry)...)
 					}
 				}
 				// if we have a firewall key without a tag, we must add it to everything
