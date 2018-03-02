@@ -60,6 +60,9 @@ func serviceMetaData(config *dockerapi.Config, port string) map[string]string {
 				metadata[key] = kvp[1]
 			}
 		}
+		if strings.HasPrefix(kvp[0], "FIREWALL") && len(kvp) > 1 {
+			metadata[kvp[0]] = kvp[1]
+		}
 	}
 	return metadata
 }

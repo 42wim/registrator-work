@@ -1,8 +1,8 @@
 package kvnetfilter
 
 import (
-	consulapi "github.com/hashicorp/consul/api"
 	"github.com/42wim/registrator-work/bridge"
+	consulapi "github.com/hashicorp/consul/api"
 	"log"
 	"net/url"
 	"path"
@@ -78,6 +78,32 @@ func (r *NetfilterAdapter) Register(service *bridge.Service) error {
 		}
 		// service too
 		srcRanges = append(srcRanges, r.kvFindACL(service.Name+"/_all/")...)
+
+		// look into FIREWALL metadata
+		for key, v := range service.Attrs {
+			if strings.HasPrefix(key, "FIREWALL") {
+				// see if we match the actual service tags
+				for _, tag := range service.Tags {
+					// if we match the fwtag
+					if "firewall_"+tag == strings.ToLower(key) {
+						// split our comma separated value
+						entries := strings.Split(v, ",")
+						for _, entry := range entries {
+							// parse the entry (is it a service or a group)
+							srcRanges = append(srcRanges, r.parseFWConfig(entry)...)
+						}
+					}
+				}
+				// if we have a firewall key without a tag, we must add it to everything
+				if key == "FIREWALL" {
+					entries := strings.Split(v, ",")
+					for _, entry := range entries {
+						// look up a service
+						srcRanges = append(srcRanges, r.parseFWConfig(entry)...)
+					}
+				}
+			}
+		}
 
 		// no results, use fallback
 		if len(srcRanges) == 0 {
@@ -205,6 +231,25 @@ func (r *NetfilterAdapter) kvFindACL(key string) []string {
 		}
 	}
 	return acls
+}
+
+func (r *NetfilterAdapter) parseFWConfig(entry string) []string {
+	var srcRanges []string
+	// look up a service
+	if strings.HasPrefix(entry, "s/") {
+		svc := strings.Replace(entry, "s/", "", 1)
+		// ../netfilter-auto/svc/
+		srcRanges = append(srcRanges, r.kvFindACL("../"+r.path+"/"+svc+"/")...)
+		// if we have a tag search that too
+	}
+	// lookup a group
+	if strings.HasPrefix(entry, "g/") {
+		svc := strings.Replace(entry, "g/", "", 1)
+		// ../netfilter-auto/svc/
+		srcRanges = append(srcRanges, r.kvFindACL("_groups/"+svc+"/")...)
+		// if we have a tag search that too
+	}
+	return srcRanges
 }
 
 func (r *NetfilterAdapter) Services() ([]*bridge.Service, error) {
