@@ -206,6 +206,18 @@ func (b *Bridge) add(containerId string, quiet bool) {
 				ContainerHostname: container.Config.Hostname,
 				container:         container}
 		}
+		if strings.Contains(k, "FIREWALL_") {
+			port := strings.Split(k, "_")[1]
+			porttype := "tcp"
+			ports[k] = ServicePort{HostPort: port,
+				HostIP:            container.NetworkSettings.GlobalIPv6Address,
+				ExposedPort:       port,
+				ExposedIP:         container.NetworkSettings.GlobalIPv6Address,
+				PortType:          porttype,
+				ContainerID:       container.ID,
+				ContainerHostname: container.Config.Hostname,
+				container:         container}
+		}
 	}
 
 	if len(ports) == 0 && !quiet {
