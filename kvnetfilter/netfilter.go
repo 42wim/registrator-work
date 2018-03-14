@@ -234,10 +234,20 @@ func (r *NetfilterAdapter) parseFWConfig(entry string) []string {
 	var srcRanges []string
 	// look up a service
 	if strings.HasPrefix(entry, "s/") {
+		tag := ""
 		svc := strings.Replace(entry, "s/", "", 1)
-		// ../netfilter-auto/svc/
-		srcRanges = append(srcRanges, r.kvFindACL("../"+r.path+"/"+svc+"/")...)
-		// if we have a tag search that too
+		start := strings.Index(svc, "/")
+		if start != -1 {
+			tag = svc[start+1:]
+			svc = svc[:start]
+		}
+		services, _, err := r.client.Catalog().Service(svc, tag, nil)
+		if err != nil {
+			log.Printf("err parseFWConfig: %s\n", err)
+		}
+		for _, s := range services {
+			srcRanges = append(srcRanges, s.ServiceAddress+"#"+strconv.Itoa(int(time.Now().Unix())))
+		}
 	}
 	// lookup a group
 	if strings.HasPrefix(entry, "g/") {
