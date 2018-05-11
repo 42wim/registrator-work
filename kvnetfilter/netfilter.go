@@ -91,14 +91,6 @@ func (r *NetfilterAdapter) Register(service *bridge.Service) error {
 						srcRanges = append(srcRanges, r.parseFWConfig(entry)...)
 					}
 				}
-				// if we have a firewall key without a tag, we must add it to everything
-				if key == "FIREWALL" {
-					entries := strings.Split(v, ",")
-					for _, entry := range entries {
-						// look up a service
-						srcRanges = append(srcRanges, r.parseFWConfig(entry)...)
-					}
-				}
 			}
 		}
 
