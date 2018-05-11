@@ -80,10 +80,12 @@ func (r *NetfilterAdapter) Register(service *bridge.Service) error {
 		srcRanges = append(srcRanges, r.kvFindACL(service.Name+"/_all/")...)
 
 		// look into FIREWALL metadata
+		fwDefined := false
 		for key, v := range service.Attrs {
-			if strings.HasPrefix(key, "FIREWALL") {
+			if strings.HasPrefix(key, "FIREWALL_") {
 				// if we match the fwtag
 				if "firewall_"+strconv.Itoa(service.Port) == strings.ToLower(key) {
+					fwDefined = true
 					// split our comma separated value
 					entries := strings.Split(v, ",")
 					for _, entry := range entries {
@@ -94,8 +96,8 @@ func (r *NetfilterAdapter) Register(service *bridge.Service) error {
 			}
 		}
 
-		// no results, use fallback
-		if len(srcRanges) == 0 {
+		// no results, use fallback unless we have a FIREWALL_ defined
+		if len(srcRanges) == 0 && !fwDefined {
 			srcRanges = append(srcRanges, r.kvFindACL("/_fallback/")...)
 		}
 
