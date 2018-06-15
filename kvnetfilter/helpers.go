@@ -74,6 +74,15 @@ func iptablesInit(chain string, set string) error {
 		iptablesRun("-A " + chain + " -o docker0 -j DROP --wait")
 	}
 
+	// allow outgoing container traffic
+	exists, err = checkTestError(iptablesRun("-t filter -C " + chain + " -i docker0 -j ACCEPT --wait"))
+	if err != nil {
+		return err
+	}
+	if !exists {
+		iptablesRun("-A " + chain + " -i docker0 -j ACCEPT --wait")
+	}
+
 	return nil
 }
 
