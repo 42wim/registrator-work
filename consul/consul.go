@@ -59,8 +59,7 @@ func (r *ConsulAdapter) Register(service *bridge.Service) error {
 
 	prefix := "" // If the service is hosted on a devbuild server, add a prefix
 	idComponents := strings.Split(service.ID, ":")
-	log.Println("ID: ", idComponents[0])
-	if len(idComponents) > 0 && strings.Contains(idComponents[0], "devbuild") {
+	if len(idComponents) > 0 && strings.Contains(idComponents[0], "devbuild-") {
 		prefix = "icts-t-devbuild" + "-"
 	}
 
@@ -68,6 +67,7 @@ func (r *ConsulAdapter) Register(service *bridge.Service) error {
 	registration.Port = service.Port
 	registration.Tags = service.Tags
 	registration.Address = service.IP
+	registration.Check = r.buildCheck(service)
 	return r.client.Agent().ServiceRegister(registration)
 }
 
