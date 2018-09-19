@@ -56,11 +56,18 @@ func (r *ConsulAdapter) Ping() error {
 func (r *ConsulAdapter) Register(service *bridge.Service) error {
 	registration := new(consulapi.AgentServiceRegistration)
 	registration.ID = service.ID
-	registration.Name = service.Name
+
+	prefix := "" // If the service is hosted on a devbuild server, add a prefix
+	idComponents := strings.Split(service.ID, ":")
+	log.Println("ID: ", idComponents[0])
+	if len(idComponents) > 0 && strings.Contains(idComponents[0], "devbuild") {
+		prefix = "icts-t-devbuild" + "-"
+	}
+
+	registration.Name = prefix + service.Name
 	registration.Port = service.Port
 	registration.Tags = service.Tags
 	registration.Address = service.IP
-	registration.Check = r.buildCheck(service)
 	return r.client.Agent().ServiceRegister(registration)
 }
 
