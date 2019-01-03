@@ -59,7 +59,7 @@ func (r *ConsulAdapter) Register(service *bridge.Service) error {
 
 	prefix := "" // If the service is hosted on a devbuild server, add a prefix
 	idComponents := strings.Split(service.ID, ":")
-	if len(idComponents) > 0 && strings.Contains(idComponents[0], "devbuild-") {
+	if len(idComponents) > 0 && strings.Contains(idComponents[0], "devbuild-") && !strings.HasPrefix(service.Name, "icts-t-devbuild-") {
 		prefix = "icts-t-devbuild" + "-"
 	}
 
